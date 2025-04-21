@@ -1,0 +1,5 @@
+openai-whisper~=20240930
+ffmpeg
+torch
+python-dotenv
+google-genai

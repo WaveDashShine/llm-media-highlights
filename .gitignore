@@ -1,0 +1,13 @@
+.idea/*
+__pycache__/*
+*/__pycache__/*
+.env
+
+# media files
+*.mp4
+*.srt
+*.m4a
+*.mp3
+
+# log file
+output/debug.log
