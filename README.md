@@ -1,4 +1,4 @@
-# Whisper Highlighter
+## SUMMARY
 
 Given a media file, parse the audio using whisper into an srt file.  
 Then use an LLM to find a number of highlights with timestamps
