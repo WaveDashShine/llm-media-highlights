@@ -1,6 +1,7 @@
 import logging
-from configs import OUTPUT_DIRECTORY
 import os
+
+from configs import OUTPUT_DIRECTORY
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

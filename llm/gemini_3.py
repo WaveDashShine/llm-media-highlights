@@ -1,7 +1,8 @@
 from google import genai
+
 from configs import GEMINI_API_KEY, SupportedLlm
-from llm.prompts import GEMINI_PROMPT
 from llm.abstractllm import AbstractLlm
+from llm.prompts import GET_HIGHLIGHTS_PROMPT
 from output_log import logger
 
 # if token consumption is needed, ref:
@@ -14,13 +15,13 @@ class GeminiFlash(AbstractLlm):
         client = genai.Client(api_key=GEMINI_API_KEY)
         subtitle_file = client.files.upload(file=file_path)
         logger.info(f"{subtitle_file=}")
-        logger.info(f"{GEMINI_PROMPT}")
+        logger.info(f"{GET_HIGHLIGHTS_PROMPT}")
         result = client.models.generate_content(
             model=SupportedLlm.GEMINI_FLASH,
             contents=[
                 subtitle_file,
                 "\n\n",
-                GEMINI_PROMPT,
+                GET_HIGHLIGHTS_PROMPT,
             ],
         )
         logger.info(f"RESPONSE:\n{result.text}")

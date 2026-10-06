@@ -1,8 +1,10 @@
-import os
 import argparse
+import os
+
 from configs import INPUT_DIRECTORY, SupportedLlm
-from llm.whisper_srt import generate_srt
 from llm.gemini_3 import GeminiFlash
+from llm.opencode_llm import GlmFlash
+from llm.whisper_srt import generate_srt
 from output_log import logger
 
 TEXT_FORMATS = ["txt", "srt"]
@@ -22,6 +24,8 @@ def get_model(llm: SupportedLlm):
     match llm:
         case SupportedLlm.GEMINI_FLASH:
             return GeminiFlash
+        case SupportedLlm.GLM_5_3_FLASH:
+            return GlmFlash
         case _:
             raise NotImplemented("LLM Model is unsupported")
 
@@ -48,8 +52,8 @@ if __name__ == "__main__":
         "--llm",
         type=str,
         required=False,
-        default=SupportedLlm.GEMINI_FLASH,  # TODO: change if key exppires
-        choices=[SupportedLlm.GEMINI_FLASH],
+        default=SupportedLlm.GLM_5_3_FLASH,
+        choices=[SupportedLlm.GEMINI_FLASH, SupportedLlm.GLM_5_3_FLASH],
         help="LLM for parsing the subtitle files",
     )
     # TODO: whisper has writer_options for subtitles, add to parse

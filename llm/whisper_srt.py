@@ -1,11 +1,12 @@
-import whisper
 import os
-import torch
 from datetime import datetime
+
+import torch
+import whisper
 from whisper.utils import get_writer
+
 from configs import INPUT_DIRECTORY, OUTPUT_DIRECTORY
 from output_log import logger
-
 
 # TODO: if you need more fine grain control on the result segments
 #  https://github.com/openai/whisper/discussions/911

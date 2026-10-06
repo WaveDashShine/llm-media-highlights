@@ -1,6 +1,7 @@
 import os
-from dotenv import load_dotenv
 from enum import StrEnum
+
+from dotenv import load_dotenv
 
 # directories
 PROJECT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -10,7 +11,9 @@ OUTPUT_DIRECTORY = os.path.join(PROJECT_DIRECTORY, "output/")
 # environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENCODE_API_KEY = os.getenv("OPENCODE_API_KEY")
 
 
 class SupportedLlm(StrEnum):
     GEMINI_FLASH = "gemini-3.8-flash"
+    GLM_5_3_FLASH = "glm-5.3-flash"
