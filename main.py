@@ -2,7 +2,7 @@ import os
 import argparse
 from configs import INPUT_DIRECTORY, SupportedLlm
 from llm.whisper_srt import generate_srt
-from llm.gemini_2 import GeminiFlash
+from llm.gemini_3 import GeminiFlash
 from output_log import logger
 
 TEXT_FORMATS = ["txt", "srt"]
@@ -35,7 +35,6 @@ def generate_highlights(file_path: str, llm: SupportedLlm = SupportedLlm.GEMINI_
     llm_model_class = get_model(llm=llm)
     llm_model = llm_model_class()
     result_text: str = llm_model.get_highlights(file_path=text_filepath)
-    # TODO: clean the result text ?
 
 
 if __name__ == "__main__":

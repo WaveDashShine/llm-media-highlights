@@ -13,4 +13,4 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 class SupportedLlm(StrEnum):
-    GEMINI_FLASH = "gemini-2.0-flash"
+    GEMINI_FLASH = "gemini-3.8-flash"
