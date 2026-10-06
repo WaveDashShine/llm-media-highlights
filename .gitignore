@@ -10,4 +10,4 @@ __pycache__/*
 *.mp3
 
 # log file
-output/debug.log
+*.log
