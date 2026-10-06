@@ -1,0 +1,4 @@
+[tool.isort]
+skip = [".venv", "venv", ".venv311"]
+# Or use skip_glob for recursive matching:
+skip_glob = ["**/.venv/*", "**/venv/*", "**/venv*/*"]
