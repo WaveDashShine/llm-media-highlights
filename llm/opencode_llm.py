@@ -7,22 +7,27 @@ from llm.abstractllm import AbstractLlm
 from llm.prompts import GET_HIGHLIGHTS_PROMPT
 from output_log import logger
 
-# OpenCode Zen serves GLM models through an OpenAI-compatible endpoint:
-# https://opencode.ai/zen/v1/chat/completions
+GO_BASE_URL = "https://opencode.ai/zen/go/v1"
+# Go requires a stable session id per conversation for routing/prompt caching:
+# https://opencode.ai/docs/go/#where-can-i-use-it
+SESSION_ID = "whisper-srt-opencode-llm"
 
 
 class GlmFlash(AbstractLlm):
 
     def get_highlights(self, file_path: str) -> str:
         client = OpenAI(
-            base_url="https://opencode.ai/zen/v1",
+            base_url=GO_BASE_URL,
             api_key=OPENCODE_API_KEY,
+            default_headers={"x-opencode-session": SESSION_ID},
         )
         with open(file_path, "r", encoding="utf-8") as subtitle_file:
             subtitle_text = subtitle_file.read()
         logger.info(f"{GET_HIGHLIGHTS_PROMPT}")
-        result = client.chat.completions.create(
+        stream = client.chat.completions.create(
             model=SupportedLlm.GLM_5_3_FLASH,
+            max_tokens=40960,
+            stream=True,
             messages=[
                 {
                     "role": "user",
@@ -30,7 +35,16 @@ class GlmFlash(AbstractLlm):
                 },
             ],
         )
-        response_text = result.choices[0].message.content
+        parts: list[str] = []
+        for event in stream:
+            if not event.choices:
+                continue  # final usage-only chunk has no choices
+            content = event.choices[0].delta.content
+            if content:
+                print(content, end="", flush=True)
+                parts.append(content)
+        print()  # newline after the streamed output
+        response_text = "".join(parts)
         logger.info(f"RESPONSE:\n{response_text}")
         return response_text
 

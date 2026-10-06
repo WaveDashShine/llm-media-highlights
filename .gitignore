@@ -11,3 +11,5 @@ __pycache__/*
 
 # log file
 *.log
+Cross-repo .env file support
+
