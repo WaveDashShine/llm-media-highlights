@@ -2,7 +2,7 @@ import argparse
 import os
 
 from configs import PROJECT_DIRECTORY, SupportedLlm
-from llm.opencode_llm import GlmFlash
+from llm.opencode_llm import GlmFlash, write_highlights_file
 from llm.whisper_srt import generate_srt
 from media_converter import convert_media_to_mp3, is_convertible_media_format
 from output_log import logger
@@ -28,20 +28,6 @@ def get_model(llm: SupportedLlm):
             raise NotImplemented("LLM Model is unsupported")
 
 
-def write_highlights_file(file_path: str, highlights: str) -> str:
-    """
-    Writes highlights next to file_path with .txt extension.
-    Returns the .txt file path.
-    """
-    file_name, _ = os.path.splitext(file_path)
-    txt_filepath = f"{file_name}.txt"
-    os.makedirs(os.path.dirname(txt_filepath), exist_ok=True)
-    logger.info(f"writing to {txt_filepath}")
-    with open(txt_filepath, "w", encoding="utf-8") as highlights_file:
-        highlights_file.write(highlights)
-    return txt_filepath
-
-
 def generate_highlights(file_path: str, llm: SupportedLlm = SupportedLlm.GLM_5_3_FLASH):
     """
     Transcribes non-text media, extracts highlights via LLM,
@@ -56,8 +42,7 @@ def generate_highlights(file_path: str, llm: SupportedLlm = SupportedLlm.GLM_5_3
     llm_model_class = get_model(llm=llm)
     llm_model = llm_model_class()
     result_text: str = llm_model.get_highlights(file_path=text_filepath)
-    return write_highlights_file(file_path=text_filepath, highlights=result_text)
-
+    return write_highlights_file(file_path=text_filepath, highlight_txt=result_text)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

@@ -14,6 +14,20 @@ GO_BASE_URL = "https://opencode.ai/zen/go/v1"
 SESSION_ID = "whisper-srt-opencode-llm"
 
 
+def write_highlights_file(file_path: str, highlight_txt: str) -> str:
+    """
+    Writes highlights next to file_path with .txt extension.
+    Returns the .txt file path.
+    """
+    file_name, _ = os.path.splitext(file_path)
+    txt_filepath = f"{file_name}.txt"
+    os.makedirs(os.path.dirname(txt_filepath), exist_ok=True)
+    logger.info(f"writing to {txt_filepath}")
+    with open(txt_filepath, "w", encoding="utf-8") as highlights_file:
+        highlights_file.write(highlight_txt)
+    return txt_filepath
+
+
 class GlmFlash(AbstractLlm):
 
     def get_highlights(self, file_path: str) -> str:
@@ -66,5 +80,7 @@ if __name__ == "__main__":
         help='file path relative to root directory, with .srt extension; nested subdirectories supported (e.g. "test_long_video.srt" or "subdir/test_long_video.srt")',
     )
     args = parser.parse_args()
+    input_file = str(os.path.join(PROJECT_DIRECTORY, args.file))
     glm = GlmFlash()
-    glm.get_highlights(file_path=str(os.path.join(PROJECT_DIRECTORY, args.file)))
+    highlights = glm.get_highlights(file_path=input_file)
+    write_highlights_file(file_path=input_file, highlight_txt=highlights)
