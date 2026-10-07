@@ -8,6 +8,15 @@ __pycache__/*
 *.srt
 *.m4a
 *.mp3
+*.webm
+*.mpga
+*.wav
+*.mpeg
+*.mov
+
+# subdirectories in input/ and output/
+input/*/
+output/*/
 
 # log file
 *.log
