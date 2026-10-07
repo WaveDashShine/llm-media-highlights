@@ -41,9 +41,8 @@ def generate_srt(file_path: str) -> str:
     logger.info(f"{device} device")
     model = whisper.load_model("turbo").to(device=device)
     audio = whisper.load_audio(file=file_path)
-    trimmed_audio = whisper.pad_or_trim(audio)
     result = model.transcribe(
-        audio=trimmed_audio, fp16=False, word_timestamps=True, task="transcribe"
+        audio=audio, fp16=False, word_timestamps=True, task="transcribe"
     )
     logger.info(result["text"])
     rel_path = os.path.relpath(file_path, INPUT_DIRECTORY)
@@ -75,9 +74,9 @@ if __name__ == "__main__":
         description="Transcribes a media file into an .srt subtitle file",
     )
     parser.add_argument(
-        "file",
+        "--file",
         type=str,
-        help='file path relative to input/ directory, with extension; nested subdirectories supported (e.g. "Recording.m4a" or "subdir/Recording.m4a")',
+        help='file path relative to root directory, with extension; nested subdirectories supported (e.g. "Recording.m4a" or "subdir/Recording.m4a")',
     )
     args = parser.parse_args()
     generate_srt(file_path=str(args.file))
