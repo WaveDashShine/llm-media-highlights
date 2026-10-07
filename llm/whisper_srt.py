@@ -1,3 +1,4 @@
+import argparse
 import os
 from datetime import datetime
 
@@ -23,8 +24,11 @@ def is_supported(file_path: str) -> bool:
 
 def generate_srt(file_path: str) -> str:
     """
-    :param file_path: file name with extension of file in input/ directory
-    :return: file path of
+    :param file_path: file path with extension, relative to the input/
+        directory (e.g. "input/Recording.m4a" or "input/subdir/Recording.m4a").
+        Supported extensions: m4a, mp3, webm, mp4, mpga, wav, mpeg.
+    :return: file path of the generated .srt, mirrored from the input/
+        structure into the output/ directory (e.g. output/subdir/Recording.m4a.srt)
     """
     if not is_supported(file_path=file_path):
         raise RuntimeError(f"file type is not supported by whisper {file_path}")
@@ -42,10 +46,12 @@ def generate_srt(file_path: str) -> str:
         audio=trimmed_audio, fp16=False, word_timestamps=True, task="transcribe"
     )
     logger.info(result["text"])
-    file_name = os.path.basename(file_path)
-    srt_filepath = os.path.join(OUTPUT_DIRECTORY, f"{file_name}.srt")
+    rel_path = os.path.relpath(file_path, INPUT_DIRECTORY)
+    nested_output_dir = os.path.join(OUTPUT_DIRECTORY, os.path.dirname(rel_path))
+    os.makedirs(nested_output_dir, exist_ok=True)
+    srt_filepath = os.path.join(nested_output_dir, f"{os.path.basename(rel_path)}.srt")
     logger.info(f"writing to {srt_filepath}")
-    writer = get_writer(output_format="srt", output_dir=OUTPUT_DIRECTORY)
+    writer = get_writer(output_format="srt", output_dir=nested_output_dir)
 
     writer_options = {  # TODO: handle from argparse
         "max_line_count": 100,
@@ -64,6 +70,15 @@ def generate_srt(file_path: str) -> str:
 
 
 if __name__ == "__main__":
-    FILENAME = "Recording.m4a"  # change to media file
-    input_file = str(os.path.join(INPUT_DIRECTORY, FILENAME))
+    parser = argparse.ArgumentParser(
+        prog="Whisper SRT",
+        description="Transcribes a media file into an .srt subtitle file",
+    )
+    parser.add_argument(
+        "filename",
+        type=str,
+        help='file path relative to input/ directory, with extension; nested subdirectories supported (e.g. "Recording.m4a" or "subdir/Recording.m4a")',
+    )
+    args = parser.parse_args()
+    input_file = str(os.path.join(INPUT_DIRECTORY, args.filename))
     generate_srt(file_path=input_file)

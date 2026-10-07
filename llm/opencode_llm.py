@@ -1,3 +1,4 @@
+import argparse
 import os
 
 from openai import OpenAI
@@ -16,6 +17,11 @@ SESSION_ID = "whisper-srt-opencode-llm"
 class GlmFlash(AbstractLlm):
 
     def get_highlights(self, file_path: str) -> str:
+        """
+        :param file_path: path to a .srt (or plain text) subtitle file,
+            e.g. "input/test_long_video.srt" or "input/subdir/test_long_video.srt"
+        :return: highlights extracted from the subtitle text
+        """
         client = OpenAI(
             base_url=GO_BASE_URL,
             api_key=OPENCODE_API_KEY,
@@ -50,7 +56,16 @@ class GlmFlash(AbstractLlm):
 
 
 if __name__ == "__main__":
-    FILENAME = "test_long_video.srt"  # change to test .srt
+    parser = argparse.ArgumentParser(
+        prog="GLM Highlights",
+        description="Parses highlights from a subtitle file using GLM",
+    )
+    parser.add_argument(
+        "filename",
+        type=str,
+        help='file path relative to input/ directory, with .srt extension; nested subdirectories supported (e.g. "test_long_video.srt" or "subdir/test_long_video.srt")',
+    )
+    args = parser.parse_args()
     glm = GlmFlash()
-    input_file = str(os.path.join(INPUT_DIRECTORY, FILENAME))
+    input_file = str(os.path.join(INPUT_DIRECTORY, args.filename))
     glm.get_highlights(file_path=input_file)
