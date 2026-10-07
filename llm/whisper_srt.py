@@ -80,5 +80,4 @@ if __name__ == "__main__":
         help='file path relative to input/ directory, with extension; nested subdirectories supported (e.g. "Recording.m4a" or "subdir/Recording.m4a")',
     )
     args = parser.parse_args()
-    input_file = str(os.path.join(INPUT_DIRECTORY, args.file))
-    generate_srt(file_path=input_file)
+    generate_srt(file_path=str(args.file))

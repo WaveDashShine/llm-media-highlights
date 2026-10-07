@@ -61,7 +61,7 @@ if __name__ == "__main__":
     )
     # TODO: whisper has writer_options for subtitles, add to parse
     args = parser.parse_args()
-    input_file = str(os.path.join(INPUT_DIRECTORY, args.file))
+    input_file = str(args.file)
     if is_convertible_media_format(input_file):
         input_file = convert_media_to_mp3(input_file)
     generate_highlights(file_path=input_file, llm=args.llm)

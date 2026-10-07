@@ -67,5 +67,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     glm = GlmFlash()
-    input_file = str(os.path.join(INPUT_DIRECTORY, args.file))
-    glm.get_highlights(file_path=input_file)
+    glm.get_highlights(file_path=str(args.file))
