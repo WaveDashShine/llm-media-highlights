@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from configs import INPUT_DIRECTORY, SupportedLlm
+from configs import PROJECT_DIRECTORY, SupportedLlm
 from llm.opencode_llm import GlmFlash
 from llm.whisper_srt import generate_srt
 from media_converter import convert_media_to_mp3, is_convertible_media_format
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     )
     # TODO: whisper has writer_options for subtitles, add to parse
     args = parser.parse_args()
-    input_file = str(args.file)
+    input_file = str(os.path.join(PROJECT_DIRECTORY, args.file))
     if is_convertible_media_format(input_file):
         input_file = convert_media_to_mp3(input_file)
     generate_highlights(file_path=input_file, llm=args.llm)

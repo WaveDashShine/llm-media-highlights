@@ -6,7 +6,7 @@ import torch
 import whisper
 from whisper.utils import get_writer
 
-from configs import INPUT_DIRECTORY, OUTPUT_DIRECTORY
+from configs import INPUT_DIRECTORY, OUTPUT_DIRECTORY, PROJECT_DIRECTORY
 from output_log import logger
 
 # TODO: if you need more fine grain control on the result segments
@@ -79,4 +79,4 @@ if __name__ == "__main__":
         help='file path relative to root directory, with extension; nested subdirectories supported (e.g. "Recording.m4a" or "subdir/Recording.m4a")',
     )
     args = parser.parse_args()
-    generate_srt(file_path=str(args.file))
+    generate_srt(file_path=str(os.path.join(PROJECT_DIRECTORY, args.file)))

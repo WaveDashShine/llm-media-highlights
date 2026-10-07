@@ -3,7 +3,7 @@ import os
 
 from openai import OpenAI
 
-from configs import INPUT_DIRECTORY, OPENCODE_API_KEY, SupportedLlm
+from configs import OPENCODE_API_KEY, PROJECT_DIRECTORY, SupportedLlm
 from llm.abstractllm import AbstractLlm
 from llm.prompts import GET_HIGHLIGHTS_PROMPT
 from output_log import logger
@@ -67,4 +67,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     glm = GlmFlash()
-    glm.get_highlights(file_path=str(args.file))
+    glm.get_highlights(file_path=str(os.path.join(PROJECT_DIRECTORY, args.file)))
