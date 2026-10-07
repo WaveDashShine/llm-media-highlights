@@ -61,11 +61,11 @@ if __name__ == "__main__":
         description="Parses highlights from a subtitle file using GLM",
     )
     parser.add_argument(
-        "filename",
+        "file",
         type=str,
         help='file path relative to input/ directory, with .srt extension; nested subdirectories supported (e.g. "test_long_video.srt" or "subdir/test_long_video.srt")',
     )
     args = parser.parse_args()
     glm = GlmFlash()
-    input_file = str(os.path.join(INPUT_DIRECTORY, args.filename))
+    input_file = str(os.path.join(INPUT_DIRECTORY, args.file))
     glm.get_highlights(file_path=input_file)

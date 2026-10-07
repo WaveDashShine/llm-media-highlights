@@ -75,10 +75,10 @@ if __name__ == "__main__":
         description="Transcribes a media file into an .srt subtitle file",
     )
     parser.add_argument(
-        "filename",
+        "file",
         type=str,
         help='file path relative to input/ directory, with extension; nested subdirectories supported (e.g. "Recording.m4a" or "subdir/Recording.m4a")',
     )
     args = parser.parse_args()
-    input_file = str(os.path.join(INPUT_DIRECTORY, args.filename))
+    input_file = str(os.path.join(INPUT_DIRECTORY, args.file))
     generate_srt(file_path=input_file)
