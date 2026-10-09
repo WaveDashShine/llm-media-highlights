@@ -6,13 +6,27 @@ import torch
 import whisper
 from whisper.utils import get_writer
 
-from configs import INPUT_DIRECTORY, OUTPUT_DIRECTORY, PROJECT_DIRECTORY
+from configs import INPUT_DIRECTORY, OUTPUT_DIRECTORY, PROJECT_DIRECTORY, SrtFormat
 from output_log import logger
 
-# TODO: if you need more fine grain control on the result segments
-#  https://github.com/openai/whisper/discussions/911
+# if you need more fine grain control on the result segments https://github.com/openai/whisper/discussions/911
 
 SUPPORTED_FILE_TYPE = ["m4a", "mp3", "webm", "mp4", "mpga", "wav", "mpeg"]
+
+# captions for short form video (youtube shorts, instagram reels)
+SHORT_FORM_OPTIONS = {
+    "max_line_count": 2,
+    "max_words_per_line": 1,  # cannot be used with max_line_width
+    # "max_line_width": 15,
+    "highlight_words": False,
+}
+
+# captions for long form video (youtube videos, TV)
+LONG_FORM_OPTIONS = {
+    "max_line_count": 2,
+    # "max_words_per_line": 10,  # cannot be used with max_line_width
+    "max_line_width": 42,
+}
 
 
 def is_supported(file_path: str) -> bool:
@@ -22,16 +36,26 @@ def is_supported(file_path: str) -> bool:
     return False
 
 
-def generate_srt(file_path: str) -> str:
+def generate_srt(file_path: str, srt_format: SrtFormat = SrtFormat.SHORT) -> str:
     """
     :param file_path: file path with extension, relative to the input/
         directory (e.g. "input/Recording.m4a" or "input/subdir/Recording.m4a").
         Supported extensions: m4a, mp3, webm, mp4, mpga, wav, mpeg.
+    :param srt_format: short form (shorts/reels) or long form (youtube/TV)
+        subtitle configuration
     :return: file path of the generated .srt, mirrored from the input/
         structure into the output/ directory (e.g. output/subdir/Recording.m4a.srt)
     """
     if not is_supported(file_path=file_path):
         raise RuntimeError(f"file type is not supported by whisper {file_path}")
+
+    match srt_format:
+        case SrtFormat.SHORT:
+            writer_options = SHORT_FORM_OPTIONS
+        case SrtFormat.LONG:
+            writer_options = LONG_FORM_OPTIONS
+        case _:
+            raise RuntimeError(f"srt format is unsupported {srt_format}")
 
     start_time = datetime.now()
     logger.info(f"Start Time: {start_time}")
@@ -42,7 +66,11 @@ def generate_srt(file_path: str) -> str:
     model = whisper.load_model("turbo").to(device=device)
     audio = whisper.load_audio(file=file_path)
     result = model.transcribe(
-        audio=audio, fp16=False, word_timestamps=True, task="transcribe"
+        audio=audio,
+        fp16=False,
+        word_timestamps=True,
+        task="transcribe",
+        no_speech_threshold=0.1,
     )
     logger.info(result["text"])
     rel_path = os.path.relpath(file_path, INPUT_DIRECTORY)
@@ -52,11 +80,6 @@ def generate_srt(file_path: str) -> str:
     logger.info(f"writing to {srt_filepath}")
     writer = get_writer(output_format="srt", output_dir=nested_output_dir)
 
-    writer_options = {  # TODO: handle from argparse
-        "max_line_count": 100,
-        "max_words_per_line": 10,
-        "max_line_width": 47,
-    }
     writer(result, srt_filepath, writer_options)
 
     end_time = datetime.now()
@@ -78,5 +101,16 @@ if __name__ == "__main__":
         type=str,
         help='file path relative to root directory, with extension; nested subdirectories supported (e.g. "Recording.m4a" or "subdir/Recording.m4a")',
     )
+    parser.add_argument(
+        "--srt-format",
+        type=str,
+        required=False,
+        default=SrtFormat.SHORT,
+        choices=[SrtFormat.SHORT, SrtFormat.LONG],
+        help="subtitle configuration for short form (shorts/reels) or long form (youtube/TV) video",
+    )
     args = parser.parse_args()
-    generate_srt(file_path=str(os.path.join(PROJECT_DIRECTORY, args.file)))
+    generate_srt(
+        file_path=str(os.path.join(PROJECT_DIRECTORY, args.file)),
+        srt_format=args.srt_format,
+    )

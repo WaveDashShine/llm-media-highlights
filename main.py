@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from configs import PROJECT_DIRECTORY, SupportedLlm
+from configs import PROJECT_DIRECTORY, SrtFormat, SupportedLlm
 from llm.opencode_llm import GlmFlash, write_highlights_file
 from llm.whisper_srt import generate_srt
 from media_converter import convert_media_to_mp3, is_convertible_media_format
@@ -28,14 +28,18 @@ def get_model(llm: SupportedLlm):
             raise NotImplemented("LLM Model is unsupported")
 
 
-def generate_highlights(file_path: str, llm: SupportedLlm = SupportedLlm.GLM_5_3_FLASH):
+def generate_highlights(
+    file_path: str,
+    llm: SupportedLlm = SupportedLlm.GLM_5_3_FLASH,
+    srt_format: SrtFormat = SrtFormat.SHORT,
+):
     """
     Transcribes non-text media, extracts highlights via LLM,
     and saves them to a .txt next to the transcript.
     Returns the .txt file path.
     """
     if not is_text(file_path=file_path):
-        text_filepath = generate_srt(file_path=file_path)
+        text_filepath = generate_srt(file_path=file_path, srt_format=srt_format)
     else:
         text_filepath = file_path
     logger.info(text_filepath)
@@ -43,6 +47,7 @@ def generate_highlights(file_path: str, llm: SupportedLlm = SupportedLlm.GLM_5_3
     llm_model = llm_model_class()
     result_text: str = llm_model.get_highlights(file_path=text_filepath)
     return write_highlights_file(file_path=text_filepath, highlight_txt=result_text)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -64,9 +69,16 @@ if __name__ == "__main__":
         choices=[SupportedLlm.GLM_5_3_FLASH],
         help="LLM for parsing the subtitle files",
     )
-    # TODO: whisper has writer_options for subtitles, add to parse
+    parser.add_argument(
+        "--srt-format",
+        type=str,
+        required=False,
+        default=SrtFormat.SHORT,
+        choices=[SrtFormat.SHORT, SrtFormat.LONG],
+        help="subtitle configuration for short form (shorts/reels) or long form (youtube/TV) video",
+    )
     args = parser.parse_args()
     input_file = str(os.path.join(PROJECT_DIRECTORY, args.file))
     if is_convertible_media_format(input_file):
         input_file = convert_media_to_mp3(input_file)
-    generate_highlights(file_path=input_file, llm=args.llm)
+    generate_highlights(file_path=input_file, llm=args.llm, srt_format=args.srt_format)

@@ -15,3 +15,8 @@ OPENCODE_API_KEY = os.getenv("OPENCODE_API_KEY")
 
 class SupportedLlm(StrEnum):
     GLM_5_3_FLASH = "glm-5.3-flash"
+
+
+class SrtFormat(StrEnum):
+    SHORT = "short"
+    LONG = "long"
