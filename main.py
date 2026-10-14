@@ -1,5 +1,6 @@
 import argparse
 import os
+from typing import Optional
 
 from configs import PROJECT_DIRECTORY, SrtFormat, SupportedLlm
 from llm.opencode_llm import GlmFlash, write_highlights_file
@@ -33,6 +34,7 @@ def generate_highlights(
     llm: SupportedLlm = SupportedLlm.GLM_5_3_FLASH,
     srt_format: SrtFormat = SrtFormat.SHORT,
     turbo: bool = False,
+    initial_prompt: Optional[str] = None,
 ):
     """
     Transcribes non-text media, extracts highlights via LLM,
@@ -41,7 +43,10 @@ def generate_highlights(
     """
     if not is_text(file_path=file_path):
         text_filepath = generate_srt(
-            file_path=file_path, srt_format=srt_format, turbo=turbo
+            file_path=file_path,
+            srt_format=srt_format,
+            turbo=turbo,
+            initial_prompt=initial_prompt,
         )
     else:
         text_filepath = file_path
@@ -87,10 +92,21 @@ if __name__ == "__main__":
         default=False,
         help="use the faster turbo whisper model instead of the default large-v3 model",
     )
+    parser.add_argument(
+        "--initial-prompt",
+        type=str,
+        required=False,
+        default=None,
+        help="optional prompt given to whisper for the first window (e.g. names/jargon); carried into later windows",
+    )
     args = parser.parse_args()
     input_file = str(os.path.join(PROJECT_DIRECTORY, args.file))
     if is_convertible_media_format(input_file):
         input_file = convert_media_to_mp3(input_file)
     generate_highlights(
-        file_path=input_file, llm=args.llm, srt_format=args.srt_format, turbo=args.turbo
+        file_path=input_file,
+        llm=args.llm,
+        srt_format=args.srt_format,
+        turbo=args.turbo,
+        initial_prompt=args.initial_prompt,
     )

@@ -1,6 +1,7 @@
 import argparse
 import os
 from datetime import datetime
+from typing import Optional
 
 import torch
 import whisper
@@ -43,6 +44,7 @@ def generate_srt(
     file_path: str,
     srt_format: SrtFormat = SrtFormat.SHORT,
     turbo: bool = False,
+    initial_prompt: Optional[str] = None,
 ) -> str:
     """
     Transcribes a media file into an .srt file.
@@ -51,6 +53,8 @@ def generate_srt(
         supported extensions: m4a, mp3, webm, mp4, mpga, wav, mpeg
     :param srt_format: SHORT (shorts/reels) or LONG (youtube/TV) subtitle config
     :param turbo: use the faster "turbo" whisper model instead of "large-v3"
+    :param initial_prompt: optional text used as a prompt for the first window;
+        carried into later windows when carry_initial_prompt is enabled
     :return: path of the generated .srt, mirrored from input/ into output/
     """
     model_name = WHISPER_MODEL_TURBO if turbo else WHISPER_MODEL_LARGE
@@ -79,6 +83,8 @@ def generate_srt(
         word_timestamps=True,
         task="transcribe",
         no_speech_threshold=0.1,
+        initial_prompt=initial_prompt,
+        carry_initial_prompt=True,
     )
     logger.info(result["text"])
     rel_path = os.path.relpath(file_path, INPUT_DIRECTORY)
@@ -124,9 +130,17 @@ if __name__ == "__main__":
         default=False,
         help="use the faster turbo whisper model instead of the default large-v3 model",
     )
+    parser.add_argument(
+        "--initial-prompt",
+        type=str,
+        required=False,
+        default=None,
+        help="optional prompt given to whisper for the first window (e.g. names/jargon); carried into later windows",
+    )
     args = parser.parse_args()
     generate_srt(
         file_path=str(os.path.join(PROJECT_DIRECTORY, args.file)),
         srt_format=args.srt_format,
         turbo=args.turbo,
+        initial_prompt=args.initial_prompt,
     )
