@@ -32,6 +32,7 @@ def generate_highlights(
     file_path: str,
     llm: SupportedLlm = SupportedLlm.GLM_5_3_FLASH,
     srt_format: SrtFormat = SrtFormat.SHORT,
+    turbo: bool = False,
 ):
     """
     Transcribes non-text media, extracts highlights via LLM,
@@ -39,7 +40,9 @@ def generate_highlights(
     Returns the .txt file path.
     """
     if not is_text(file_path=file_path):
-        text_filepath = generate_srt(file_path=file_path, srt_format=srt_format)
+        text_filepath = generate_srt(
+            file_path=file_path, srt_format=srt_format, turbo=turbo
+        )
     else:
         text_filepath = file_path
     logger.info(text_filepath)
@@ -77,8 +80,17 @@ if __name__ == "__main__":
         choices=[SrtFormat.SHORT, SrtFormat.LONG],
         help="subtitle configuration for short form (shorts/reels) or long form (youtube/TV) video",
     )
+    parser.add_argument(
+        "--turbo",
+        action="store_true",
+        required=False,
+        default=False,
+        help="use the faster turbo whisper model instead of the default large-v3 model",
+    )
     args = parser.parse_args()
     input_file = str(os.path.join(PROJECT_DIRECTORY, args.file))
     if is_convertible_media_format(input_file):
         input_file = convert_media_to_mp3(input_file)
-    generate_highlights(file_path=input_file, llm=args.llm, srt_format=args.srt_format)
+    generate_highlights(
+        file_path=input_file, llm=args.llm, srt_format=args.srt_format, turbo=args.turbo
+    )

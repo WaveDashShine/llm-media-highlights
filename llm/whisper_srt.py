@@ -28,6 +28,9 @@ LONG_FORM_OPTIONS = {
     "max_line_width": 42,
 }
 
+WHISPER_MODEL_LARGE = "large-v3"
+WHISPER_MODEL_TURBO = "turbo"
+
 
 def is_supported(file_path: str) -> bool:
     for file_type in SUPPORTED_FILE_TYPE:
@@ -36,16 +39,21 @@ def is_supported(file_path: str) -> bool:
     return False
 
 
-def generate_srt(file_path: str, srt_format: SrtFormat = SrtFormat.SHORT) -> str:
+def generate_srt(
+    file_path: str,
+    srt_format: SrtFormat = SrtFormat.SHORT,
+    turbo: bool = False,
+) -> str:
     """
-    :param file_path: file path with extension, relative to the input/
-        directory (e.g. "input/Recording.m4a" or "input/subdir/Recording.m4a").
-        Supported extensions: m4a, mp3, webm, mp4, mpga, wav, mpeg.
-    :param srt_format: short form (shorts/reels) or long form (youtube/TV)
-        subtitle configuration
-    :return: file path of the generated .srt, mirrored from the input/
-        structure into the output/ directory (e.g. output/subdir/Recording.m4a.srt)
+    Transcribes a media file into an .srt file.
+
+    :param file_path: media file path relative to the input/ directory;
+        supported extensions: m4a, mp3, webm, mp4, mpga, wav, mpeg
+    :param srt_format: SHORT (shorts/reels) or LONG (youtube/TV) subtitle config
+    :param turbo: use the faster "turbo" whisper model instead of "large-v3"
+    :return: path of the generated .srt, mirrored from input/ into output/
     """
+    model_name = WHISPER_MODEL_TURBO if turbo else WHISPER_MODEL_LARGE
     if not is_supported(file_path=file_path):
         raise RuntimeError(f"file type is not supported by whisper {file_path}")
 
@@ -63,7 +71,7 @@ def generate_srt(file_path: str, srt_format: SrtFormat = SrtFormat.SHORT) -> str
     torch.cuda.init()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"{device} device")
-    model = whisper.load_model("turbo").to(device=device)
+    model = whisper.load_model(model_name).to(device=device)
     audio = whisper.load_audio(file=file_path)
     result = model.transcribe(
         audio=audio,
@@ -109,8 +117,16 @@ if __name__ == "__main__":
         choices=[SrtFormat.SHORT, SrtFormat.LONG],
         help="subtitle configuration for short form (shorts/reels) or long form (youtube/TV) video",
     )
+    parser.add_argument(
+        "--turbo",
+        action="store_true",
+        required=False,
+        default=False,
+        help="use the faster turbo whisper model instead of the default large-v3 model",
+    )
     args = parser.parse_args()
     generate_srt(
         file_path=str(os.path.join(PROJECT_DIRECTORY, args.file)),
         srt_format=args.srt_format,
+        turbo=args.turbo,
     )
