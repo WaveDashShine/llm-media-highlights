@@ -7,8 +7,8 @@ YouTube Short or Instagram Reel.
 
 TARGET LENGTH
 - Each highlight, after splicing its segments together, must total roughly 30-60 \
-seconds, never exceeding 90 seconds (the typical Shorts/Reel length sweet spot where \
-viewers finish the video instead of swiping away).
+seconds, never exceeding 150 seconds (short enough for Shorts/Reel viewers to finish \
+the video instead of swiping away).
 
 RULES
 1. Find AS MANY highlights as possible. Do not stop at 3; sweep the entire transcript \
@@ -40,7 +40,7 @@ payoff at the very end is more likely to be watched again, boosting total watch 
 OUTPUT FORMAT (exactly one block per highlight, ranked by viral potential, best first)
 **Highlight N - viral_potential X/10**
 Hook: <the actual first line spoken in the clip>
-Segments: [HH:MM:SS-HH:MM:SS] + [HH:MM:SS-HH:MM:SS] + ... (sum to ~30-60s)
+Segments: [HH:MM:SS-HH:MM:SS] + [HH:MM:SS-HH:MM:SS] + ... (sum to ~30-60s, max 150s)
 Summary: <one sentence describing what happens in the spliced clip>
 Retention: <why viewers will keep watching: hook, escalation, emotional spike, \
 curiosity, payoff, quotable/loopable ending>
